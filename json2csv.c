@@ -40,6 +40,9 @@ int parse_json(char *json_str, struct json_object **json_obj);
 
 
 int verbose=0;
+int use_tabs=0;
+static char *comma_sep = ",%s";
+static char *tab_sep = "\t%s";
 /* variables to hold the keys we want to output */
 static char *output_keys[64];
 static int  num_output_keys = 0;
@@ -80,7 +83,7 @@ void process_line(char *source, FILE *output)
         if (i == 0) {
             fprintf(output, "%s", strcmp(str, "null") == 0 ? "" : str);
         } else {
-            fprintf(output, ",%s", strcmp(str, "null") == 0 ? "" : str);
+            fprintf(output, (use_tabs) ? tab_sep : comma_sep, strcmp(str, "null") == 0 ? "" : str);
         }
         if (str) {
             free(str);
@@ -204,6 +207,7 @@ void usage(){
     fprintf(stderr, "\t-i /path/to/input.json (optional; default is stdin)\n");
     fprintf(stderr, "\t-o /path/to/output.csv (optional; default is stdout)\n");
     fprintf(stderr, "\t-v verbose output (to stderr)\n");
+    fprintf(stderr, "\t-t output tab separated values\n");
     fprintf(stderr, "\t-h this help\n");
 }
 
@@ -213,7 +217,7 @@ int main(int argc, char **argv)
     char *input_filename = NULL;
     char *output_filename = NULL;
     
-    while ((ch = getopt(argc, argv, "i:o:k:vh")) != -1) {
+    while ((ch = getopt(argc, argv, "i:o:k:vth")) != -1) {
         switch (ch) {
         case 'i':
             input_filename = optarg;
@@ -226,6 +230,9 @@ int main(int argc, char **argv)
             break;
         case 'v':
             verbose = 1;
+            break;
+        case 't':
+            use_tabs = 1;
             break;
         case 'h':
             usage();
